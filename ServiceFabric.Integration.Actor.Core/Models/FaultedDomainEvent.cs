@@ -1,0 +1,3 @@
+﻿namespace Integration.Common.Model
+{
+}

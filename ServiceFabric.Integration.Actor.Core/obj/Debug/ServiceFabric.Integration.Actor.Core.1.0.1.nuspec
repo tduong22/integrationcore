@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>ServiceFabric.Integration.Actor.Core</id>
+    <version>1.0.1</version>
+    <authors>Logixtek Engineering Team</authors>
+    <owners>Logixtek Engineering Team</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <description>Package Description</description>
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="AutoMapper" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Autofac.ServiceFabric" version="2.2.0" exclude="Build,Analyzers" />
+        <dependency id="DelegatesFactory" version="1.2.0" exclude="Build,Analyzers" />
+        <dependency id="MessagePack" version="1.7.3.7" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.ApplicationInsights.ServiceFabric" version="2.3.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.ApplicationInsights.ServiceFabric.Native" version="2.3.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.Mvc" version="2.2.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Azure.DocumentDB" version="2.8.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Azure.Storage.Blob" version="11.0.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging" version="2.2.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.ApplicationInsights" version="2.10.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.ServiceFabric.Actors" version="3.4.664" exclude="Build,Analyzers" />
+        <dependency id="Polly" version="7.1.1" exclude="Build,Analyzers" />
+        <dependency id="Quartz" version="3.0.7" exclude="Build,Analyzers" />
+        <dependency id="RestSharp.Newtonsoft.Json" version="1.5.1" exclude="Build,Analyzers" />
+        <dependency id="System.ComponentModel.Composition" version="4.6.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\Users\toan.duong.LOGIXTEK\Documents\HRProject\ServiceFabric.Integration.Actor.Core\bin\Debug\netstandard2.0\ServiceFabric.Integration.Actor.Core.dll" target="lib\netstandard2.0\ServiceFabric.Integration.Actor.Core.dll" />
+  </files>
+</package>
