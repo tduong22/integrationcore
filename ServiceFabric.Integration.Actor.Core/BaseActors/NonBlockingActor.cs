@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Integration.Common.Actor.Helpers;
+using Integration.Common.Actor.Interface;
 using Integration.Common.Actor.Model;
 using Integration.Common.Actor.Persistences;
 using Integration.Common.Actor.Utilities;
 using Integration.Common.Exceptions;
+using Integration.Common.Interface;
 using Integration.Common.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.ServiceFabric.Actors;
@@ -32,7 +34,16 @@ namespace Integration.Common.Actor.BaseActor
 
         #endregion
 
-        protected NonBlockingActor(ActorService actorService, ActorId actorId, IActorRequestPersistence actorRequestPersistence) : base(actorService, actorId)
+        protected NonBlockingActor(ActorService actorService, ActorId actorId,
+                                   IActorRequestPersistence actorRequestPersistence,
+                                   IBinaryMessageSerializer binaryMessageSerializer, 
+                                   IActorClient actorClient,
+                                   IKeyValueStorage<string> storage, ILogger logger) : base(actorService,
+                                                                                            actorId,
+                                                                                            binaryMessageSerializer,
+                                                                                            actorClient,
+                                                                                            storage,
+                                                                                            logger)
         {
             ActorRequestPersistence = actorRequestPersistence;
             ActorRequestPersistence.SetActorStateManager(StateManager);

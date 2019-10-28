@@ -1,8 +1,10 @@
-﻿using Integration.Common.Actor.Helpers;
+﻿using Autofac;
+using Integration.Common.Actor.Helpers;
 using Integration.Common.Actor.Interface;
 using Integration.Common.Flow;
 using Integration.Common.Interface;
 using Integration.Common.Model;
+using ServiceFabric.Integration.Actor.Core.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -20,8 +22,8 @@ namespace Integration.Common.Actor.UnifiedActor
 
         static ActionInvoker()
         {
-            _actorClient = BaseDependencyResolver.ResolveActorClient();
-            _binaryMessageSerializer = BaseDependencyResolver.ResolveBinarySerializer();
+            _actorClient = CoreDependencyResolver.Container.Resolve<IActorClient>();
+            _binaryMessageSerializer = CoreDependencyResolver.Container.Resolve<IBinaryMessageSerializer>();
         }
 
         public static Task Invoke<TIActionInterface>(Expression<Func<TIActionInterface, object>> expression, ActorRequestContext actorRequestContext, CancellationToken cancellationToken) where TIActionInterface : IRemotableAction
@@ -77,8 +79,8 @@ namespace Integration.Common.Actor.UnifiedActor
         private static IBinaryMessageSerializer _binaryMessageSerializer;
         static ActionInvoker()
         {
-            _actorClient = BaseDependencyResolver.ResolveActorClient();
-            _binaryMessageSerializer = BaseDependencyResolver.ResolveBinarySerializer();
+            _actorClient = CoreDependencyResolver.Container.Resolve<IActorClient>();
+            _binaryMessageSerializer = CoreDependencyResolver.Container.Resolve<IBinaryMessageSerializer>();
         }
 
         public static Task Invoke(Expression<Func<TIActionInterface, object>> expression, ActorIdentity tartgetActor, CancellationToken cancellationToken) {

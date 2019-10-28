@@ -22,28 +22,36 @@ namespace Integration.Common.Actor.BaseActor
         /// </summary>
         protected string CurrentActor => $"{CurrentFlowInstanceId}, {GetType().BaseType?.Name} of {Id}";
 
-        protected BaseMessagingActor(ActorService actorService, ActorId actorId) : base(actorService, actorId)
+        protected BaseMessagingActor(ActorService actorService, ActorId actorId,
+                                     IBinaryMessageSerializer binaryMessageSerializer, 
+                                     IActorClient actorClient, 
+                                     IKeyValueStorage<string> storage,
+                                     ILogger logger) : base(actorService, actorId, logger)
         {
+            /*
             Flow = BaseDependencyResolver.ResolveFlow();
             if (Flow != null)
             {
                 CurrentRefStep = Flow.GetCurrentStep(CurrentActorServiceWithActorIdNotSpecified);
                 NextStep = Flow.GetNextStep(CurrentRefStep);
                 Orders = NextStep.Orders;
-            }
-            else Orders = OrchestrationOrderCollection.NoOrder();
+            }*/
+            
+            Orders = OrchestrationOrderCollection.NoOrder();
 
             //resolve binary serializer
-            BinaryMessageSerializer = BaseDependencyResolver.ResolveBinarySerializer();
 
+            BinaryMessageSerializer = binaryMessageSerializer ?? throw new ArgumentNullException(nameof(binaryMessageSerializer));
+            ActorClient = actorClient ?? throw new ArgumentNullException(nameof(actorClient));
+            StorageService = storage;
+            
             //resolve storage
-            StorageService = BaseDependencyResolver.ResolveStorageService<string>();
+            //StorageService = BaseDependencyResolver.ResolveStorageService<string>();
 
             //resolve flowservice
-            AsyncFlowService = BaseDependencyResolver.ResolveFlowService();
+            //AsyncFlowService = BaseDependencyResolver.ResolveFlowService();
 
             //resolve actorclient to be able to chain next
-            ActorClient = BaseDependencyResolver.ResolveActorClient();
 
         }
 
@@ -186,6 +194,7 @@ namespace Integration.Common.Actor.BaseActor
             return new ActorIdentityWithActionName(CurrentActorIdentity, actionName);
         }
 
+        /*
         protected Common.Flow.Flow RegisterFlow(string keyName)
         {
             Flow = BaseDependencyResolver.ResolveFlow(keyName);
@@ -196,7 +205,7 @@ namespace Integration.Common.Actor.BaseActor
                 Orders = NextStep.Orders;
             }
             return Flow;
-        }
+        }*/
 
         /// <summary>
         /// For custom resolve step before going next step
@@ -231,11 +240,13 @@ namespace Integration.Common.Actor.BaseActor
         /// </summary>
         /// <param name="flowName"></param>
         /// <returns></returns>
+        /// 
+        /*
         protected Task<Common.Flow.Flow> ResolveFlowAsync(string flowName)
         {
             Flow = BaseDependencyResolver.ResolveFlow(flowName);
             return Task.FromResult(Flow);
-        }
+        }*/
 
         /// <summary>
         /// Resolve correct step by current flow.

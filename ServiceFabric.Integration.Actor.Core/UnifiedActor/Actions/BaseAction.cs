@@ -65,8 +65,6 @@ namespace Integration.Common.Actor.UnifiedActor.Actions
 
         protected BaseAction() : base()
         {
-            ILoggerFactory loggerFactory = BaseDependencyResolver.ResolveLoggerFactory(); //ServiceLocator anti pattern
-            Logger = loggerFactory.CreateLogger(GetType());
         }
 
         public void SetActor(UnifiedActor unifiedActor)
@@ -74,6 +72,7 @@ namespace Integration.Common.Actor.UnifiedActor.Actions
             Actor = unifiedActor ?? throw new ArgumentNullException(nameof(UnifiedActor));
             Id = unifiedActor.Id.ToString();
             ServiceUri = unifiedActor.ServiceUri;
+            Logger = unifiedActor.Logger;
         }
 
         #region Actor Lifecycle
@@ -151,7 +150,7 @@ namespace Integration.Common.Actor.UnifiedActor.Actions
         public Task ChainNextActorsAsync<TIActionInterface>(Expression<Func<TIActionInterface, object>> expression, ActorRequestContext actorRequestContext, ExecutableOrchestrationOrder executableOrchestrationOrder, CancellationToken cancellationToken) where TIActionInterface : IRemotableAction => Actor.ChainNextActorsAsync(expression, actorRequestContext, executableOrchestrationOrder, cancellationToken);
 
         public Task ChainNextActorsAsync(ActorRequestContext actorRequestContext, object payload, Type typeOfPayload, ExecutableOrchestrationOrder executableOrchestrationOrder, CancellationToken cancellationToken) => Actor.ChainNextActorsAsync(actorRequestContext, payload, typeOfPayload, executableOrchestrationOrder, cancellationToken);
-        public Task ChainNextActorsAsync(ActorRequestContext actorRequestContext, object payload, Type typeOfPayload, CancellationToken cancellationToken) => Actor.ChainNextActorsAsync(actorRequestContext, payload, typeOfPayload, cancellationToken);
+        //public Task ChainNextActorsAsync(ActorRequestContext actorRequestContext, object payload, Type typeOfPayload, CancellationToken cancellationToken) => Actor.ChainNextActorsAsync(actorRequestContext, payload, typeOfPayload, cancellationToken);
         #endregion
 
         #region Serialization

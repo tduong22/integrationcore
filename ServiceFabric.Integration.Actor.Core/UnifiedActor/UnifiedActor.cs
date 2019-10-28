@@ -10,6 +10,7 @@ using Integration.Common.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
+using ServiceFabric.Integration.Actor.Core.Helpers;
 using System;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
@@ -35,8 +36,6 @@ namespace Integration.Common.Actor.UnifiedActor
             }
         }
 
-        private bool IsFirstTimeCall = true;
-
         public new string NOT_ASSIGNED_FLOW_INSTANCE => "NOT_ASSIGNED_FLOW_INSTANCE";
 
         //public API wrapper
@@ -55,6 +54,8 @@ namespace Integration.Common.Actor.UnifiedActor
         public new Common.Flow.Flow Flow => base.Flow;
 
         public new Step CurrentRefStep => base.CurrentRefStep;
+
+        public new ILogger Logger => base.Logger;
 
         public new Step NextStep => base.NextStep;
 
@@ -76,10 +77,13 @@ namespace Integration.Common.Actor.UnifiedActor
 
         protected ILifetimeScope lifetimeScope;
 
-        protected UnifiedActor(ActorService actorService, ActorId actorId, IActorRequestPersistence actorRequestPersistence)
-            : base(actorService, actorId, actorRequestPersistence)
+        protected UnifiedActor(ActorService actorService, ActorId actorId,
+                               IActorRequestPersistence actorRequestPersistence,
+                               IBinaryMessageSerializer binaryMessageSerializer, IActorClient actorClient,
+                               IKeyValueStorage<string> storage, ILogger logger)
+            : base(actorService, actorId, actorRequestPersistence, binaryMessageSerializer, actorClient, storage, logger)
         {
-            lifetimeScope = BaseDependencyResolver.CreateLifetimeScope();
+            lifetimeScope = CoreDependencyResolver.CreateLifetimeScope();
         }
 
         protected override async Task OnActivateAsync()
@@ -87,8 +91,6 @@ namespace Integration.Common.Actor.UnifiedActor
             await base.OnActivateAsync();
 
             await TryResolveIActionByActorId();
-
-            await TryResolveIActionByFlowStep();
 
             //after trying to resolve from OnActivateAsync, invoke the IAction's OnActivateAsync
             if (Action != null && Action is IActivatableAction activatableAction)
@@ -113,6 +115,7 @@ namespace Integration.Common.Actor.UnifiedActor
         {
             try
             {
+                /*Use this when flow is implemented
                 //When actor is balanced, onactivate will trigger first and receive reminder (if any) will trigger later
                 //We will rely on the ActorId to get the key needed for resolving correct IAction as on OnActivateAsync we have no clue on how to resolve correct IAction due to missing ActionName
                 var flow = await ResolveFlowAsync(null);
@@ -120,7 +123,7 @@ namespace Integration.Common.Actor.UnifiedActor
                 {
                     var step = await ResolveStepByActorIdAsync(ServiceUri.ToString(), Id.ToString());
                     Action = lifetimeScope.ResolveOptionalKeyed<IAction>(step.StepName);
-                }
+                }*/
             }
             catch (Exception ex)
             {
@@ -194,12 +197,12 @@ namespace Integration.Common.Actor.UnifiedActor
         /// <returns></returns>
         public Task ChainNextActorsAsync<TIActionInterface>(Expression<Func<TIActionInterface, object>> expression, ActorRequestContext actorRequestContext, CancellationToken cancellationToken) where TIActionInterface : IRemotableAction
         {
-            return ActionInvoker<TIActionInterface>.Invoke(expression, actorRequestContext, cancellationToken);
+            return ActionInvoker.Invoke<TIActionInterface>(expression, actorRequestContext, cancellationToken);
         }
 
         public Task ChainNextActorsAsync<TIActionInterface>(Expression<Func<TIActionInterface, object>> expression, ActorRequestContext actorRequestContext, ExecutableOrchestrationOrder executableOrchestrationOrder, CancellationToken cancellationToken) where TIActionInterface : IRemotableAction
         {
-            return ActionInvoker<TIActionInterface>.Invoke(expression, actorRequestContext, executableOrchestrationOrder, cancellationToken);
+            return ActionInvoker.Invoke<TIActionInterface> (expression, actorRequestContext, executableOrchestrationOrder, cancellationToken);
         }
 
         public new Task ChainNextActorsAsync<T>(ActorRequestContext nextActorRequestContext, T payload, CancellationToken cancellationToken)
@@ -207,6 +210,7 @@ namespace Integration.Common.Actor.UnifiedActor
             return this.ChainNextActorsAsync(nextActorRequestContext, payload, typeof(T), cancellationToken);
         }
 
+        /*
         public new Task ChainNextActorsAsync(ActorRequestContext nextActorRequestContext, object payload, Type typeOfPayload, CancellationToken cancellationToken)
         {
             //read from the NextStep and invoke chainnextactor
@@ -216,7 +220,7 @@ namespace Integration.Common.Actor.UnifiedActor
                 return base.ChainNextActorsAsync(nextActorRequestContext, payload, typeOfPayload, cancellationToken);
 
             else return ActionInvoker.Invoke(nextStep.MethodName, nextActorRequestContext, Orders.GetFirstExecutableOrder(), cancellationToken);
-        }
+        }*/
 
         public new Task ChainRequestAsync(ActorRequestContext actorRequestContext, byte[] payload, Type typeOfPayload, string actionName, CancellationToken cancellationToken)
 
@@ -231,20 +235,13 @@ namespace Integration.Common.Actor.UnifiedActor
             {
                 if (string.IsNullOrEmpty(actorRequestContext?.ActionName))
                     throw new InvalidOperationException($"UnifiedActors only work with a not-null actionName that used to resolve the correct IAction. Current is {actorRequestContext?.ActionName}");
-
+                /*
+                 *Add when flow is implemented
                 var flow = await ResolveFlowAsync(null);
                 if (flow != null)
-                    await ResolveStepAsync(actorRequestContext.ActionName);
+                    await ResolveStepAsync(actorRequestContext.ActionName);*/
 
                 Action = lifetimeScope.ResolveKeyed<IAction>(actorRequestContext.ActionName);
-
-                /*
-                if (IsFirstTimeCall && Action is IActivatableAction activatableAction)
-                {
-                    await activatableAction.OnActivateAsync();
-                    IsFirstTimeCall = false;
-                }*/
-
                 await Action.ChainProcessMessageAsync(actorRequestContext, payload, cancellationToken);
             }
             catch (Exception ex)
