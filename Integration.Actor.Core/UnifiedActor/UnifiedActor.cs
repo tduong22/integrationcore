@@ -111,27 +111,6 @@ namespace Integration.Common.Actor.UnifiedActor
             return Task.CompletedTask;
         }
 
-        private async Task TryResolveIActionByFlowStep()
-        {
-            try
-            {
-                /*Use this when flow is implemented
-                //When actor is balanced, onactivate will trigger first and receive reminder (if any) will trigger later
-                //We will rely on the ActorId to get the key needed for resolving correct IAction as on OnActivateAsync we have no clue on how to resolve correct IAction due to missing ActionName
-                var flow = await ResolveFlowAsync(null);
-                if (flow != null)
-                {
-                    var step = await ResolveStepByActorIdAsync(ServiceUri.ToString(), Id.ToString());
-                    Action = lifetimeScope.ResolveOptionalKeyed<IAction>(step.StepName);
-                }*/
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, $"{CurrentActor} failed to resolve action on OnActivateAsync. Ex: {ex.Message}");
-                throw;
-            }
-        }
-
         protected override async Task OnDeactivateAsync()
         {
             if (Action is IActivatableAction activatableAction)
