@@ -148,6 +148,7 @@ namespace Integration.Common.Actor.UnifiedActor
             else
             {
                 await base.ReceiveReminderAsync(reminderName, state, dueTime, period);
+                
                 if (Action is IRemindableAction remindableAction)
                     await remindableAction.ReceiveReminderAsync(reminderName, state, dueTime, period);
             }

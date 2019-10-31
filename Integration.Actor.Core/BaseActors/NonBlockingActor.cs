@@ -6,6 +6,7 @@ using Integration.Common.Actor.Helpers;
 using Integration.Common.Actor.Interface;
 using Integration.Common.Actor.Model;
 using Integration.Common.Actor.Persistences;
+using Integration.Common.Actor.UnifiedActor;
 using Integration.Common.Actor.Utilities;
 using Integration.Common.Exceptions;
 using Integration.Common.Interface;
@@ -14,7 +15,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Actors.Runtime;
-using Newtonsoft.Json;
 
 namespace Integration.Common.Actor.BaseActor
 {
@@ -30,7 +30,6 @@ namespace Integration.Common.Actor.BaseActor
         protected readonly IActorRequestPersistence ActorRequestPersistence;
 
         protected const string NOT_VALID_PARSING = "NOT_VALID_FOR_PARSING";
-        protected bool Resendable = false;
 
         #endregion
 
@@ -226,26 +225,16 @@ namespace Integration.Common.Actor.BaseActor
                     //{current actor} only resolved fully from here, when current request context is available
                     var serviceName = this.ActorService.Context.ServiceName;
 
-                    string payloadStr = NOT_VALID_PARSING;
-
-                    if (Resendable)
-                    {
-                        //only parsed data if resendable. Byte[] data could not be seen via Application Insight as well so no need to parse
-                        payloadStr = payload is byte[] bytes
-                            ? BitConverter.ToString(bytes)
-                            : BitConverter.ToString(SerializePayload(payload));
-                    }
-
                     var dict = new Dictionary<string, object>{
                     {"ServiceUri", serviceName},
-                    {"Payload", payloadStr},
+                    {"Payload", null},
                     {"ActionName", actionName},
                     {"Actor", CurrentActor},
                     {"ReminderName", reminderName},
                     {"OperationId", CurrentFlowInstanceId.Id},
                     {"FlowName", CurrentFlowInstanceId.FlowName},
                     {"ApplicationName", ApplicationName},
-                    {"Resendable", Resendable}
+                    {"Resendable", false}
                 };
 
                     LogPayload(payload, actionName, dict, null, reminderName);
@@ -303,73 +292,42 @@ namespace Integration.Common.Actor.BaseActor
                     (s, ex) =>
                         $"{s["Actor"]} invokes Internal Process with Action Name {s["ActionName"]} and reminder name: {s["ReminderName"]}");
             }
-
-
         }
 
         #endregion
 
         #region Virtual Methods that should be implemented        
 
-        protected virtual async Task OnFailedAsync(string actionName, object payload, Exception exception, CancellationToken cancellationToken)
+        protected virtual Task OnFailedAsync(string actionName, object payload, Exception exception, CancellationToken cancellationToken)
         {
-            /*
-            string payloadStr = NOT_VALID_PARSING;
-            if (Resendable)
-            {
-                //only parsed data if resendable. Byte[] data could not be seen via Application Insight as well so no need to parse
-                payloadStr = payload is byte[] bytes ? BitConverter.ToString(bytes) : BitConverter.ToString(SerializePayload(payload));
-            }
             var dict = new Dictionary<string, object>
             {
                 {"ServiceUri", ServiceUri},
-                {"Payload", payloadStr},
+                {"Payload", "UNABLE_TO_PARSE" },
+                {"MethodName", "NOT_YET_PARSED" },
                 {"ActionName", actionName},
                 {"Actor", CurrentActor},
                 {"OperationId", CurrentFlowInstanceId.Id},
                 {"FlowName", CurrentFlowInstanceId.FlowName},
                 {"ApplicationName", ApplicationName},
-                {"Resendable", Resendable}
+                {"Resendable", false}
             };
-            var errorHandling = new ErrorHandling(ServiceUri.ToString(), payloadStr, actionName, CurrentActor,
-                "ReminderName", CurrentFlowInstanceId.Id, new CorrelationId(CurrentFlowInstanceId.ToString()), CurrentFlowInstanceId.FlowName, ApplicationName);
-
-            //if message failed by validation
-            if (exception is ActorMessageValidationException)
-            {
-                Logger.LogError(exception, $"{CurrentActor} failed to validate the message by {actionName}");
-            }
-            else
-            {
-                LogPayload(payload, actionName, dict, exception);
-            }
-
-            /*
             try
             {
-                var proxy = ActorProxy.Create<IBaseMessagingActor>(new ActorId(Guid.NewGuid().ToString()),
-                        new Uri(InfrastructureConstants.ErrorEventBusSenderActorServiceUri));
-                await proxy.ChainProcessMessageAsync(DefaultNextActorRequestContext,
-                    SerializePayload(errorHandling), CancellationToken.None);
+                if (payload is SerializableMethodInfo serializableMethodInfo)
+                {
+                    foreach (var ar in serializableMethodInfo.Arguments)
+                    {
+                        dict.Add(ar.ArgumentName, BinaryMessageSerializer.ToJson(ar.Value));
+                    }
+                    dict["MethodName"] = serializableMethodInfo.MethodName;
+                }
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, $"[OnFailedAsync] {CurrentActor} failed to chain error handling process message of the action name {actionName}. Message: {ex.Message}");
+                //failed to parse payload for logging
+                dict["Payload"] = "UNABLE_TO_PARSE" + $" {ex.Message}";
             }
-            */
-            //Clean up state even in failed requests
-
-            var dict = new Dictionary<string, object>
-            {
-                {"ServiceUri", ServiceUri},
-                {"Payload", JsonConvert.SerializeObject(payload)},
-                {"ActionName", actionName},
-                {"Actor", CurrentActor},
-                {"OperationId", CurrentFlowInstanceId.Id},
-                {"FlowName", CurrentFlowInstanceId.FlowName},
-                {"ApplicationName", ApplicationName},
-                {"Resendable", Resendable}
-            };
 
             if (exception is ActorMessageValidationException)
             {
@@ -379,10 +337,7 @@ namespace Integration.Common.Actor.BaseActor
             {
                 LogPayload(payload, actionName, dict, exception);
             }
-
-            var requestId = CurrentRequestContext.RequestId;
-            Logger.LogInformation($"{CurrentActor} OnFailed - Cleaning up state for {actionName} - {requestId}");
-            await ActorRequestPersistence.RemoveStateDataForRequestIdAsync(actionName, requestId, CancellationToken.None);
+            return Task.CompletedTask;
         }
         /// <summary>
         /// Schedule a task on the thread pool to delete the actor if-self. Override if needed
@@ -411,29 +366,10 @@ namespace Integration.Common.Actor.BaseActor
         protected virtual Task OnSuccessAsync(string actionName, object payload, MessageObjectResult result,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            //await ActorRequestPersistence.RemoveStateDataForRequestIdAsync(actionName, CurrentRequestContext.RequestId, cancellationToken);
-
-            //if we need to quickly re-claim resource, uncomment this part otherwise just leave the actor for GC
-            //for now we consider that this cause more harm than good so commented
-            //DisposeSelf(cancellationToken);
-            return Task.CompletedTask;
-
-            /*
-            var requestContexts = await ActorRequestPersistence.RetrieveRequestContextsAsync(cancellationToken);
-            if (requestContexts == null || !requestContexts.Any())
-            {
-                DisposeSelf(cancellationToken);
-            }*/
-            
+            return Task.CompletedTask; 
         }
 
         #endregion
-
-        public Task InvokeChainNextActorsAsync<T>(string actionName, T payload, CancellationToken cancellationToken)
-        {
-            CurrentRequestContext.ActionName = actionName;
-            return ChainNextActorsAsync<T>(CurrentRequestContext, payload, cancellationToken);
-        }
 
         public bool IsRequestPersistenceReminder(string reminderName)
         {

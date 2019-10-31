@@ -26,5 +26,10 @@ namespace ServiceFabric.Integration.Actor.Core.Serialization
         {
             return MessagePackSerializer.NonGeneric.Deserialize(entityType, data);
         }
+
+        public string ToJson(byte[] data)
+        {
+            return MessagePackSerializer.ToJson(data);
+        }
     }
 }

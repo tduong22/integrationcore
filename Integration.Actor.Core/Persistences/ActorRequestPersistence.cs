@@ -76,12 +76,15 @@ namespace Integration.Common.Actor.Persistences
                 //As cancellation token cant be serialized & replicated to other node and cant be used to invoke cancellation
                 //await StateManager.AddStateAsync(NameCompositionResolver.GenerateRequestCanncellationTokenStateName(actionName, actorRequestContext.RequestId), cancellationToken, cancellationToken);
 
+                //UnComment if wantting to deal with status of the requests
+                /*
                 await StateManager.AddStateAsync(
                     NameCompositionResolver.GenerateRequestStateStateName(actionName,
                         actorRequestContext.RequestId), false, cancellationToken);
                 //add current latest reminder name for any current info. due to the single thread behaviour of actors, this is valid
                 await StateManager.AddOrUpdateStateAsync(ACTOR_REMINDER_LATEST_STATE_NAME, NameCompositionResolver.GenerateReminderName(actionName, actorRequestContext.RequestId),
                     (s, reminderName) => reminderName, cancellationToken);
+                */
 
             }
             catch (InvalidOperationException ex)
@@ -104,12 +107,15 @@ namespace Integration.Common.Actor.Persistences
                 //As cancellation token cant be serialized & replicated to other node and cant be used to invoke cancellation
                 //await StateManager.AddStateAsync(NameCompositionResolver.GenerateRequestCanncellationTokenStateName(actionName, actorRequestContext.RequestId), cancellationToken, cancellationToken);
 
+                //UnComment if wantting to deal with status of the requests
+                /*
                 await StateManager.AddStateAsync(
                     NameCompositionResolver.GenerateRequestStateStateName(actionName,
                         actorRequestContext.RequestId), false, cancellationToken);
                 //add current latest reminder name for any current info. due to the single thread behaviour of actors, this is valid
                 await StateManager.AddOrUpdateStateAsync(ACTOR_REMINDER_LATEST_STATE_NAME, NameCompositionResolver.GenerateReminderName(actionName, actorRequestContext.RequestId),
                     (s, reminderName) => reminderName, cancellationToken);
+                    */
 
             }
             catch (InvalidOperationException ex)

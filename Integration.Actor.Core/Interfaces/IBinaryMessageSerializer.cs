@@ -8,5 +8,6 @@ namespace Integration.Common.Interface
         T DeserializePayload<T>(byte[] data);
         byte[] SerializePayload(object entity, Type entityType);
         object DeserializePayload(byte[] data, Type entityType);
+        string ToJson(byte[] data);
     }
 }
