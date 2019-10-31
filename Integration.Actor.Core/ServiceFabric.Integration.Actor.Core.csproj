@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.0.1</Version>
+    <Version>2.0.1</Version>
     <Authors>Logixtek Engineering Team</Authors>
     <Company>Logixtek</Company>
     <Product>Logixtek Integration Framework</Product>
@@ -12,19 +12,15 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac.ServiceFabric" Version="2.2.0" />
-    <PackageReference Include="AutoMapper" Version="8.0.0" />
     <PackageReference Include="MessagePack" Version="1.7.3.7" />
     <PackageReference Include="DelegatesFactory" Version="1.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.ServiceFabric" Version="2.3.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.ServiceFabric.Native" Version="2.3.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Azure.DocumentDB" Version="2.8.1" />
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.10.0" />
     <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.4.664" />
     <PackageReference Include="Polly" Version="7.1.1" />
-    <PackageReference Include="Quartz" Version="3.0.7" />
     <PackageReference Include="RestSharp.Newtonsoft.Json" Version="1.5.1" />
     <PackageReference Include="System.ComponentModel.Composition" Version="4.6.0" />
   </ItemGroup>
