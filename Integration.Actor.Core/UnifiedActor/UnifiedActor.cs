@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Integration.Common.Actor.BaseActor;
-using Integration.Common.Actor.Helpers;
 using Integration.Common.Actor.Interface;
 using Integration.Common.Actor.Model;
 using Integration.Common.Actor.Persistences;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Fabric;
+﻿using System.Fabric;
 
 namespace ServiceFabric.Integration.Actor.Core.Configuration
 {

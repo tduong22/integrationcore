@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Integration.Common.Actor.Helpers;
 using Integration.Common.Actor.Interface;
 using Integration.Common.Flow;
 using Integration.Common.Interface;

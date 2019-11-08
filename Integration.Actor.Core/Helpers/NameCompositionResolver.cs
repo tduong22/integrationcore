@@ -3,7 +3,7 @@ using Integration.Common.Actor.Persistences;
 
 namespace Integration.Common.Actor.Helpers
 {
-    internal static class NameCompositionResolver
+    public static class NameCompositionResolver
     {
         public const string INVALID_ACTION_NAME = "INVALID_ACTION_NAME";
         public static string GenerateReminderName(string actionName, string requestContextId)
