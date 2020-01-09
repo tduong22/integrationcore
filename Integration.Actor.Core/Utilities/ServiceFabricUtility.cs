@@ -6,7 +6,7 @@ namespace Integration.Common.Actor.Utilities
     {
         public static string GenerateFullActorServiceName(string actorServiceName, string applicationName = null)
         {
-            var resolvedApplicationName = string.IsNullOrEmpty(applicationName)? FabricRuntime.GetActivationContext().ApplicationName : applicationName;
+            var resolvedApplicationName = string.IsNullOrEmpty(applicationName) ? FabricRuntime.GetActivationContext().ApplicationName : applicationName;
             return $"{resolvedApplicationName}/{actorServiceName}";
         }
     }

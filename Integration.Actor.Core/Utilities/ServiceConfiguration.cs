@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Integration.Common.Utility.Interfaces;
+using System.Collections.Generic;
 using System.Fabric;
-using Integration.Common.Utility.Interfaces;
 
 namespace Integration.Common.Utility
 {

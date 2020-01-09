@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Integration.Common.Actor.Helpers;
+﻿using Integration.Common.Actor.Helpers;
 using Integration.Common.Actor.Interface;
 using Integration.Common.Exceptions;
 using Integration.Common.Extensions;
@@ -12,6 +9,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Actors.Runtime;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Integration.Common.Actor.BaseActor
 {
@@ -23,8 +23,8 @@ namespace Integration.Common.Actor.BaseActor
         protected string CurrentActor => $"{CurrentFlowInstanceId}, {GetType().BaseType?.Name} of {Id}";
 
         protected BaseMessagingActor(ActorService actorService, ActorId actorId,
-                                     IBinaryMessageSerializer binaryMessageSerializer, 
-                                     IActorClient actorClient, 
+                                     IBinaryMessageSerializer binaryMessageSerializer,
+                                     IActorClient actorClient,
                                      IKeyValueStorage<string> storage,
                                      ILogger logger) : base(actorService, actorId, logger)
         {
@@ -36,7 +36,7 @@ namespace Integration.Common.Actor.BaseActor
                 NextStep = Flow.GetNextStep(CurrentRefStep);
                 Orders = NextStep.Orders;
             }*/
-            
+
             Orders = OrchestrationOrderCollection.NoOrder();
 
             //resolve binary serializer
@@ -44,7 +44,7 @@ namespace Integration.Common.Actor.BaseActor
             BinaryMessageSerializer = binaryMessageSerializer ?? throw new ArgumentNullException(nameof(binaryMessageSerializer));
             ActorClient = actorClient ?? throw new ArgumentNullException(nameof(actorClient));
             StorageService = storage;
-            
+
             //resolve storage
             //StorageService = BaseDependencyResolver.ResolveStorageService<string>();
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Integration.Common.Actor.Helpers;
+﻿using Integration.Common.Actor.Helpers;
 using Integration.Common.Actor.Interface;
 using Integration.Common.Actor.Model;
 using Integration.Common.Actor.Persistences;
@@ -15,6 +11,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Actors.Runtime;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Integration.Common.Actor.BaseActor
 {
@@ -35,7 +35,7 @@ namespace Integration.Common.Actor.BaseActor
 
         protected NonBlockingActor(ActorService actorService, ActorId actorId,
                                    IActorRequestPersistence actorRequestPersistence,
-                                   IBinaryMessageSerializer binaryMessageSerializer, 
+                                   IBinaryMessageSerializer binaryMessageSerializer,
                                    IActorClient actorClient,
                                    IKeyValueStorage<string> storage, ILogger logger) : base(actorService,
                                                                                             actorId,
@@ -265,7 +265,8 @@ namespace Integration.Common.Actor.BaseActor
                     await OnFailedAsync(actionName, payload, e, cancellationToken);
                     throw;
                 }
-                finally {
+                finally
+                {
                     await ActorRequestPersistence.RemoveStateDataForRequestIdAsync(actionName, CurrentRequestContext.RequestId, cancellationToken);
                     //unregister reminder after process
                     await UnregisterReminderAsync(GetReminder(reminderName));
@@ -366,7 +367,7 @@ namespace Integration.Common.Actor.BaseActor
         protected virtual Task OnSuccessAsync(string actionName, object payload, MessageObjectResult result,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return Task.CompletedTask; 
+            return Task.CompletedTask;
         }
 
         #endregion

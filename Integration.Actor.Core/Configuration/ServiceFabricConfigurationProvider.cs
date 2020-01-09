@@ -1,5 +1,5 @@
-﻿using System.Fabric;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+using System.Fabric;
 
 namespace ServiceFabric.Integration.Actor.Core.Configuration
 {

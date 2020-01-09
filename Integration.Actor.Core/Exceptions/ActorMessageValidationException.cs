@@ -6,7 +6,7 @@ namespace Integration.Common.Actor.Utilities
     {
         public ActorMessageValidationException(string message) : base(message)
         {
-            
+
         }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using Integration.Common.Exceptions;
+using Integration.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using Integration.Common.Extensions;
 
 namespace Integration.Common.Model
 {
