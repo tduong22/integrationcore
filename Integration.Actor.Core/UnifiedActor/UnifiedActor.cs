@@ -93,8 +93,8 @@ namespace Integration.Common.Actor.UnifiedActor
 
             //after trying to resolve from OnActivateAsync, invoke the IAction's OnActivateAsync
             if (Action != null && Action is IActivatableAction activatableAction)
-            { 
-                await activatableAction.OnActivateAsync();    
+            {
+                await activatableAction.OnActivateAsync();
             }
         }
 
@@ -103,8 +103,9 @@ namespace Integration.Common.Actor.UnifiedActor
             // Resolve key of IAction via ActorId by extract the interface name between parentheses ( )
             // Not support for nested
             var stringId = Id.ToString();
-            if (stringId.Contains("(") && stringId.Contains(")")) { 
-            var keyToResolveIAction = Regex.Match(stringId, @"\(([^)]*)\)").Groups[1].Value;
+            if (stringId.Contains("(") && stringId.Contains(")"))
+            {
+                var keyToResolveIAction = Regex.Match(stringId, @"\(([^)]*)\)").Groups[1].Value;
                 Action = lifetimeScope.ResolveOptionalKeyed<IAction>(keyToResolveIAction);
             }
             return Task.CompletedTask;
@@ -147,7 +148,7 @@ namespace Integration.Common.Actor.UnifiedActor
             else
             {
                 await base.ReceiveReminderAsync(reminderName, state, dueTime, period);
-                
+
                 if (Action is IRemindableAction remindableAction)
                     await remindableAction.ReceiveReminderAsync(reminderName, state, dueTime, period);
             }
@@ -181,7 +182,7 @@ namespace Integration.Common.Actor.UnifiedActor
 
         public Task ChainNextActorsAsync<TIActionInterface>(Expression<Func<TIActionInterface, object>> expression, ActorRequestContext actorRequestContext, ExecutableOrchestrationOrder executableOrchestrationOrder, CancellationToken cancellationToken) where TIActionInterface : IRemotableAction
         {
-            return ActionInvoker.Invoke<TIActionInterface> (expression, actorRequestContext, executableOrchestrationOrder, cancellationToken);
+            return ActionInvoker.Invoke<TIActionInterface>(expression, actorRequestContext, executableOrchestrationOrder, cancellationToken);
         }
 
         public new Task ChainNextActorsAsync<T>(ActorRequestContext nextActorRequestContext, T payload, CancellationToken cancellationToken)
@@ -202,7 +203,6 @@ namespace Integration.Common.Actor.UnifiedActor
         }*/
 
         public new Task ChainRequestAsync(ActorRequestContext actorRequestContext, byte[] payload, Type typeOfPayload, string actionName, CancellationToken cancellationToken)
-
         => base.ChainRequestAsync(actorRequestContext, payload, typeOfPayload, actionName, cancellationToken);
 
         public new Task ChainRequestAsync<T>(ActorRequestContext actorRequestContext, byte[] payload, string actionName, CancellationToken cancellationToken)
@@ -226,6 +226,7 @@ namespace Integration.Common.Actor.UnifiedActor
             catch (Exception ex)
             {
                 Logger.LogError(ex, $"{CurrentActor} failed to ChainProcessMessageAsync. Message: {ex.Message}");
+                await OnFailedAsync(actorRequestContext.ActionName, payload, ex, cancellationToken);
                 throw;
             }
         }

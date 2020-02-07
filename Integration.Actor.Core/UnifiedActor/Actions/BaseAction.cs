@@ -1,4 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Delegates;
+using Integration.Common.Actor.Interface;
+using Integration.Common.Actor.Model;
+using Integration.Common.Flow;
+using Integration.Common.Interface;
+using Integration.Common.Model;
+using Microsoft.Extensions.Logging;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using System;
@@ -6,12 +12,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Integration.Common.Actor.Interface;
-using Integration.Common.Flow;
-using Integration.Common.Actor.Model;
-using Integration.Common.Model;
-using Integration.Common.Interface;
-using Delegates;
 
 namespace Integration.Common.Actor.UnifiedActor.Actions
 {
@@ -116,7 +116,7 @@ namespace Integration.Common.Actor.UnifiedActor.Actions
                         throw new NotImplementedException($"Delegate instance {serializableMethodInfo.MethodName} cannot be found of the current action {GetType()}. Make sure the method is implemented correctly via interface");
                     }
                     //invoke
-                    await ((Task) instanceDelegate(this, parameters.ToArray())).ConfigureAwait(false);
+                    await ((Task)instanceDelegate(this, parameters.ToArray())).ConfigureAwait(false);
                 }
                 else
                 {
@@ -128,7 +128,7 @@ namespace Integration.Common.Actor.UnifiedActor.Actions
                         throw new NotImplementedException($"Delegate generic {serializableMethodInfo.MethodName} cannot be found of the current action {GetType()}. Make sure the generic method is implemented correctly via interface");
                     }
                     //invoke
-                    await ((Task) genericDelegate(this, parameters.ToArray())).ConfigureAwait(false);
+                    await ((Task)genericDelegate(this, parameters.ToArray())).ConfigureAwait(false);
                 }
             }
             return MessageObjectResult.None;

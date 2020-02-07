@@ -1,9 +1,9 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Integration.Common.Flow;
 using Integration.Common.Model;
 using Microsoft.ServiceFabric.Actors;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Integration.Common.Actor.Interfaces
 {
@@ -19,7 +19,7 @@ namespace Integration.Common.Actor.Interfaces
 
         #region steps
         Task<Step> SetCurrentStep(ActorRequestContext actorRequestContext, FlowInstanceId flowInstanceId, Step step, CancellationToken cancellationToken);
-        Task CompleteStepAsync(ActorRequestContext actorRequestContext, FlowInstanceId flowInstanceId, StepId stepId, CancellationToken cancellationToken); 
+        Task CompleteStepAsync(ActorRequestContext actorRequestContext, FlowInstanceId flowInstanceId, StepId stepId, CancellationToken cancellationToken);
         Task ErrorStepAsync(ActorRequestContext actorRequestContext, FlowInstanceId flowInstanceId, StepId stepId, CancellationToken cancellationToken);
         Task<Step> GetCurrentStep(ActorRequestContext actorRequestContext, FlowInstanceId flowInstanceId, ActorIdentity actorIdentity, int occurrence, CancellationToken cancellationToken);
         Task<Step> GetCurrentStepWithActionName(ActorRequestContext actorRequestContext, FlowInstanceId flowInstanceId, ActorIdentityWithActionName actorIdentity, int occurrence, CancellationToken cancellationToken);

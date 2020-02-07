@@ -9,7 +9,8 @@ namespace Integration.Common.Models
         public ErrorRequesetYouForce Error { get; set; }
     }
 
-    public class ErrorRequesetYouForce {
+    public class ErrorRequesetYouForce
+    {
         public string Message { get; set; }
 
         public string CorrelationId { get; set; }

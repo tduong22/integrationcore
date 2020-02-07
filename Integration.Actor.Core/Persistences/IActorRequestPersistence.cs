@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Integration.Common.Model;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Integration.Common.Model;
-using Microsoft.ServiceFabric.Actors.Runtime;
 
 namespace Integration.Common.Actor.Persistences
 {
