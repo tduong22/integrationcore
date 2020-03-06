@@ -238,7 +238,7 @@ namespace Integration.Common.Actor.BaseActor
                         MethodName = "NOT_YET_PARSED",
                         ActionName = NameCompositionResolver.ExtractActionNameFromReminderName(REMINDER_NAME),
                         ActorName = CurrentActor,
-                        ReminderName = REMINDER_NAME,
+                        ReminderName = reminderName,
                         OperationId = CurrentFlowInstanceId.Id,
                         FlowName = CurrentFlowInstanceId.FlowName,
                         ApplicationName = ApplicationName,
