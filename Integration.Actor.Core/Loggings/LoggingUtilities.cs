@@ -23,7 +23,8 @@ namespace ServiceFabric.Integration.Actor.Core.Loggings
                     {"Resendable", actorExecutionContext.Resendable},
                     {"SourceSystem", actorExecutionContext.SourceSystem},
                     {"Entity", actorExecutionContext.Entity},
-                    {"EntityId", actorExecutionContext.EntityId}
+                    {"EntityId", actorExecutionContext.EntityId},
+                    {"TraceId", actorExecutionContext.ServiceFabricTraceId }
                 };
             return dict;
         }
