@@ -19,6 +19,7 @@ namespace ServiceFabric.Integration.Actor.Core.Models
         public string SourceSystem { get; set; }
         public string Entity { get; set; }
         public string EntityId { get; set; }
+        public string ServiceFabricTraceId { get; set; }
         public Dictionary<string, object> CustomRequestInfo { get; set; } = new Dictionary<string, object>();
     }
 }

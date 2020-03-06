@@ -245,7 +245,8 @@ namespace Integration.Common.Actor.BaseActor
                         Resendable = false,
                         SourceSystem = CurrentFlowInstanceId.SourceSystem,
                         Entity = CurrentFlowInstanceId.Entity,
-                        EntityId = CurrentFlowInstanceId.EntityId
+                        EntityId = CurrentFlowInstanceId.EntityId,
+                        ServiceFabricTraceId = ActorService.Context.TraceId
                     };
                     var dict = LoggingUtilities.CreateLoggingDictionary(actorExecutionContext);
 
@@ -306,7 +307,8 @@ namespace Integration.Common.Actor.BaseActor
                 Resendable = false,
                 SourceSystem = CurrentFlowInstanceId.SourceSystem,
                 Entity = CurrentFlowInstanceId.Entity,
-                EntityId = CurrentFlowInstanceId.EntityId
+                EntityId = CurrentFlowInstanceId.EntityId,
+                ServiceFabricTraceId = ActorService.Context.TraceId
             };
             try
             {
