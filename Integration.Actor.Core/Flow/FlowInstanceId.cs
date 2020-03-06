@@ -8,6 +8,9 @@ namespace Integration.Common.Flow
     {
         [DataMember] public string Id { get; set; }
         [DataMember] public string FlowName { get; set; }
+        [DataMember] public string SourceSystem { get; set; }
+        [DataMember] public string Entity { get; set; }
+        [DataMember] public string EntityId { get; set; }
 
         public static FlowInstanceId NewFlowInstanceId => new FlowInstanceId() { Id = Guid.NewGuid().ToString() };
 

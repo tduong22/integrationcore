@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Integration.Common.Actor.Helpers;
+﻿using Integration.Common.Actor.Helpers;
 using Integration.Common.Actor.Interface;
 using Integration.Common.Actor.Model;
 using Integration.Common.Actor.Persistences;
@@ -15,6 +11,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Actors.Runtime;
+using ServiceFabric.Integration.Actor.Core.FaultHandling;
+using ServiceFabric.Integration.Actor.Core.Loggings;
+using ServiceFabric.Integration.Actor.Core.Models;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Integration.Common.Actor.BaseActor
 {
@@ -30,12 +33,15 @@ namespace Integration.Common.Actor.BaseActor
         protected readonly IActorRequestPersistence ActorRequestPersistence;
 
         protected const string NOT_VALID_PARSING = "NOT_VALID_FOR_PARSING";
+        protected const string REMINDER_NAME = "ReminderName";
+
+        protected IFaultHandlingService _faultHandlingService;
 
         #endregion
 
         protected NonBlockingActor(ActorService actorService, ActorId actorId,
                                    IActorRequestPersistence actorRequestPersistence,
-                                   IBinaryMessageSerializer binaryMessageSerializer, 
+                                   IBinaryMessageSerializer binaryMessageSerializer,
                                    IActorClient actorClient,
                                    IKeyValueStorage<string> storage, ILogger logger) : base(actorService,
                                                                                             actorId,
@@ -225,19 +231,25 @@ namespace Integration.Common.Actor.BaseActor
                     //{current actor} only resolved fully from here, when current request context is available
                     var serviceName = this.ActorService.Context.ServiceName;
 
-                    var dict = new Dictionary<string, object>{
-                    {"ServiceUri", serviceName},
-                    {"Payload", null},
-                    {"ActionName", actionName},
-                    {"Actor", CurrentActor},
-                    {"ReminderName", reminderName},
-                    {"OperationId", CurrentFlowInstanceId.Id},
-                    {"FlowName", CurrentFlowInstanceId.FlowName},
-                    {"ApplicationName", ApplicationName},
-                    {"Resendable", false}
-                };
+                    var actorExecutionContext = new ActorExecutionContext()
+                    {
+                        ServiceUri = serviceName.ToString(),
+                        Payload = null,
+                        MethodName = "NOT_YET_PARSED",
+                        ActionName = NameCompositionResolver.ExtractActionNameFromReminderName(REMINDER_NAME),
+                        ActorName = CurrentActor,
+                        ReminderName = REMINDER_NAME,
+                        OperationId = CurrentFlowInstanceId.Id,
+                        FlowName = CurrentFlowInstanceId.FlowName,
+                        ApplicationName = ApplicationName,
+                        Resendable = false,
+                        SourceSystem = CurrentFlowInstanceId.SourceSystem,
+                        Entity = CurrentFlowInstanceId.Entity,
+                        EntityId = CurrentFlowInstanceId.EntityId
+                    };
+                    var dict = LoggingUtilities.CreateLoggingDictionary(actorExecutionContext);
 
-                    LogPayload(payload, actionName, dict, null, reminderName);
+                    LoggingUtilities.LogPayload(Logger, payload, actionName, dict, null, reminderName);
 
                     //for non-generic cases
                     var typeOfPayload = await ActorRequestPersistence.RetrieveRequestPayloadTypeAsync(actionName, currentRequestContextId,
@@ -265,7 +277,8 @@ namespace Integration.Common.Actor.BaseActor
                     await OnFailedAsync(actionName, payload, e, cancellationToken);
                     throw;
                 }
-                finally {
+                finally
+                {
                     await ActorRequestPersistence.RemoveStateDataForRequestIdAsync(actionName, CurrentRequestContext.RequestId, cancellationToken);
                     //unregister reminder after process
                     await UnregisterReminderAsync(GetReminder(reminderName));
@@ -273,44 +286,28 @@ namespace Integration.Common.Actor.BaseActor
             }
         }
 
-        private void LogPayload(object payload, string actionName, Dictionary<string, object> dictionary, Exception exception = null, string reminderName = null)
-        {
-
-            if (exception != null)
-            {
-                Logger.Log(LogLevel.Error, new EventId(9999),
-                    dictionary
-                    , exception,
-                    (s, ex) =>
-                        $"[OnFailedAsync] {s["Actor"]} failed to process message by {s["ActionName"]}. Message: {ex.Message}");
-            }
-            else
-            {
-                Logger.Log(LogLevel.Information, new EventId(9999),
-                    dictionary
-                    , exception,
-                    (s, ex) =>
-                        $"{s["Actor"]} invokes Internal Process with Action Name {s["ActionName"]} and reminder name: {s["ReminderName"]}");
-            }
-        }
-
         #endregion
 
         #region Virtual Methods that should be implemented        
 
-        protected virtual Task OnFailedAsync(string actionName, object payload, Exception exception, CancellationToken cancellationToken)
+        protected virtual async Task OnFailedAsync(string actionName, object payload, Exception exception, CancellationToken cancellationToken)
         {
-            var dict = new Dictionary<string, object>
+            //var dict = CreateLoggingDictionary("UNABLE_TO_PARSE", string.Empty);
+            var actorExecutionContext = new ActorExecutionContext()
             {
-                {"ServiceUri", ServiceUri},
-                {"Payload", "UNABLE_TO_PARSE" },
-                {"MethodName", "NOT_YET_PARSED" },
-                {"ActionName", actionName},
-                {"Actor", CurrentActor},
-                {"OperationId", CurrentFlowInstanceId.Id},
-                {"FlowName", CurrentFlowInstanceId.FlowName},
-                {"ApplicationName", ApplicationName},
-                {"Resendable", false}
+                ServiceUri = this.ActorService.Context.ServiceName.ToString(),
+                Payload = null,
+                MethodName = "NOT_YET_PARSED",
+                ActionName = NameCompositionResolver.ExtractActionNameFromReminderName(REMINDER_NAME),
+                ActorName = CurrentActor,
+                ReminderName = REMINDER_NAME,
+                OperationId = CurrentFlowInstanceId.Id,
+                FlowName = CurrentFlowInstanceId.FlowName,
+                ApplicationName = ApplicationName,
+                Resendable = false,
+                SourceSystem = CurrentFlowInstanceId.SourceSystem,
+                Entity = CurrentFlowInstanceId.Entity,
+                EntityId = CurrentFlowInstanceId.EntityId
             };
             try
             {
@@ -318,26 +315,24 @@ namespace Integration.Common.Actor.BaseActor
                 {
                     foreach (var ar in serializableMethodInfo.Arguments)
                     {
-                        dict.Add(ar.ArgumentName, BinaryMessageSerializer.ToJson(ar.Value));
+                        actorExecutionContext.CustomRequestInfo.Add(ar.ArgumentName, BinaryMessageSerializer.ToJson(ar.Value));
                     }
-                    dict["MethodName"] = serializableMethodInfo.MethodName;
+                    actorExecutionContext.MethodName = serializableMethodInfo.MethodName;
                 }
             }
             catch (Exception ex)
             {
                 //failed to parse payload for logging
-                dict["Payload"] = "UNABLE_TO_PARSE" + $" {ex.Message}";
+                actorExecutionContext.Payload = "UNABLE_TO_PARSE" + $" {ex.Message}";
             }
 
-            if (exception is ActorMessageValidationException)
+            if (_faultHandlingService != null)
             {
-                Logger.LogError(exception, $"{CurrentActor} failed to validate the message by {actionName}");
+                await _faultHandlingService.HandleFaultAsync(actionName, payload, exception, actorExecutionContext, cancellationToken);
             }
-            else
-            {
-                LogPayload(payload, actionName, dict, exception);
-            }
-            return Task.CompletedTask;
+
+            
+            //return Task.CompletedTask;
         }
         /// <summary>
         /// Schedule a task on the thread pool to delete the actor if-self. Override if needed
@@ -366,7 +361,7 @@ namespace Integration.Common.Actor.BaseActor
         protected virtual Task OnSuccessAsync(string actionName, object payload, MessageObjectResult result,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return Task.CompletedTask; 
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -375,5 +370,6 @@ namespace Integration.Common.Actor.BaseActor
         {
             return NameCompositionResolver.IsValidRequestPersistenceForNonBlocking(reminderName);
         }
+
     }
 }
