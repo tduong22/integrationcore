@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using Integration.Common.Utility.Interfaces;
+﻿using Integration.Common.Utility.Interfaces;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Integration.Common.Utility
 {
@@ -86,21 +86,21 @@ namespace Integration.Common.Utility
             var fileContent = string.Empty;
             if (CloudStorageAccount.TryParse(blobConnectionString, out _storageAccount))
             {
-                    CloudBlobClient cloudBlobClient = _storageAccount.CreateCloudBlobClient();
-                    _cloudBlobContainer = cloudBlobClient.GetContainerReference(blobContainerName);
-                    var blob = _cloudBlobContainer.GetBlobReference(blobConfigFileName);
-                    if (await blob.ExistsAsync())
+                CloudBlobClient cloudBlobClient = _storageAccount.CreateCloudBlobClient();
+                _cloudBlobContainer = cloudBlobClient.GetContainerReference(blobContainerName);
+                var blob = _cloudBlobContainer.GetBlobReference(blobConfigFileName);
+                if (await blob.ExistsAsync())
+                {
+                    using (StreamReader reader = new StreamReader(await blob.OpenReadAsync()))
                     {
-                        using (StreamReader reader = new StreamReader(await blob.OpenReadAsync()))
-                        {
-                            fileContent = reader.ReadToEnd();
-                        }
+                        fileContent = reader.ReadToEnd();
                     }
-                    else
-                    {
-                        throw new StorageException("blobContainerName: " + blobContainerName + ";" + "blobConfigFileName: " + blobConfigFileName);
-                    }
-                
+                }
+                else
+                {
+                    throw new StorageException("blobContainerName: " + blobContainerName + ";" + "blobConfigFileName: " + blobConfigFileName);
+                }
+
             }
             return fileContent;
         }

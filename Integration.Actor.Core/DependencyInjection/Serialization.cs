@@ -7,7 +7,8 @@ namespace Integration.Common.Actor.DependencyInjection
 {
     public class SerializationModule : Module
     {
-        protected override void Load(ContainerBuilder builder) {
+        protected override void Load(ContainerBuilder builder)
+        {
             MessagePackSerializer.SetDefaultResolver(MessagePack.Resolvers.ContractlessStandardResolver.Instance);
             builder.RegisterType<MessagePackBinaryMessageSerializer>().As<IBinaryMessageSerializer>().SingleInstance();
         }

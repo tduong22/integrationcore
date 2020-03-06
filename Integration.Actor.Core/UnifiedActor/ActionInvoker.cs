@@ -82,7 +82,8 @@ namespace Integration.Common.Actor.UnifiedActor
             _binaryMessageSerializer = CoreDependencyResolver.Container.Resolve<IBinaryMessageSerializer>();
         }
 
-        public static Task Invoke(Expression<Func<TIActionInterface, object>> expression, ActorIdentity tartgetActor, CancellationToken cancellationToken) {
+        public static Task Invoke(Expression<Func<TIActionInterface, object>> expression, ActorIdentity tartgetActor, CancellationToken cancellationToken)
+        {
             //form a default generated actor request context
             var actorRequestContext = new ActorRequestContext("DefaultGenetatedManagerId", "NoActionNameGeneratedYet", Guid.NewGuid().ToString(), tartgetActor, FlowInstanceId.NewFlowInstanceId);
             return Invoke(expression, actorRequestContext, cancellationToken);
@@ -130,7 +131,7 @@ namespace Integration.Common.Actor.UnifiedActor
         }
 
         public static Task Invoke(Expression<Func<TIActionInterface, object>> expression, ActorRequestContext actorRequestContext, ExecutableOrchestrationOrder executableOrchestrationOrder, CancellationToken cancellationToken)
-        { 
+        {
             actorRequestContext.TargetActor = new ActorIdentity(executableOrchestrationOrder.ActorId, executableOrchestrationOrder.ActorServiceUri);
             return Invoke(expression, actorRequestContext, cancellationToken);
         }

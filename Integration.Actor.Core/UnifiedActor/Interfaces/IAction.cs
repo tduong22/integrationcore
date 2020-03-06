@@ -1,7 +1,7 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Integration.Common.Actor.Model;
+﻿using Integration.Common.Actor.Model;
 using Integration.Common.Model;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Integration.Common.Actor.UnifiedActor
 {

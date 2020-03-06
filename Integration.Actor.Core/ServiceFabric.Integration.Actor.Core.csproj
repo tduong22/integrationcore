@@ -2,13 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>2.1.3</Version>
+    <Version>2.1.4</Version>
     <Authors>Logixtek Engineering Team</Authors>
     <Company>Logixtek</Company>
     <Product>Logixtek Integration Framework</Product>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <LangVersion>7.2</LangVersion>
+    <PackageReleaseNotes>2.1.4: Fix an issue on the datacontract serialization for SerializationMethodInfo</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

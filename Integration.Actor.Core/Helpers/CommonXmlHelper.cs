@@ -28,5 +28,5 @@ namespace Integration.Common.Actor.Helpers
             return new XElement(xmlDocument.Name.LocalName, xmlDocument.Elements().Select(el => RemoveAllNamespaces(el)));
         }
     }
-    
+
 }

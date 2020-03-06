@@ -7,10 +7,11 @@ namespace ServiceFabric.Integration.Actor.Core.DependencyInjection
 {
     public class BlobModule : Module
     {
-        public string StorageAccountKey {get;set; }
-        public string StorageAccountName {get;set; }
-        protected override void Load(ContainerBuilder builder) {
-            
+        public string StorageAccountKey { get; set; }
+        public string StorageAccountName { get; set; }
+        protected override void Load(ContainerBuilder builder)
+        {
+
             var blobClient = new BlobClient(StorageAccountKey, StorageAccountName);
             builder.RegisterInstance(blobClient).As<BlobClient>();
             builder.RegisterType<BlobStorageConfiguration>().As<IBlobStorageConfiguration>().SingleInstance();

@@ -1,5 +1,5 @@
-﻿using System;
-using Integration.Common.Actor.Persistences;
+﻿using Integration.Common.Actor.Persistences;
+using System;
 
 namespace Integration.Common.Actor.Helpers
 {

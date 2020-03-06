@@ -1,8 +1,8 @@
-﻿using System;
-using System.Runtime.Serialization;
-using Integration.Common.Exceptions;
+﻿using Integration.Common.Exceptions;
 using Integration.Common.Model;
 using Newtonsoft.Json;
+using System;
+using System.Runtime.Serialization;
 
 namespace Integration.Common.Flow
 {

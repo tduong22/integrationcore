@@ -8,8 +8,8 @@ namespace ServiceFabric.Integration.Actor.Core.Helpers
         public static ContainerBuilder Builder;
 
         static CoreDependencyResolver()
-        { 
-            Builder = new ContainerBuilder();    
+        {
+            Builder = new ContainerBuilder();
         }
 
         public static void Build()
