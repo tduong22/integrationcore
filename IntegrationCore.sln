@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceFabric.Integration.Actor.Core", "Integration.Actor.Core\ServiceFabric.Integration.Actor.Core.csproj", "{D345CF52-4FA3-4894-992B-426A7CCF3CE1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Comvita.Common.Actor", "..\Comvita-Common-Package-v2\Comvita.Common.Actor\Comvita.Common.Actor.csproj", "{F77A87D4-E8E1-4817-AAE6-349B654DDD41}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{D345CF52-4FA3-4894-992B-426A7CCF3CE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D345CF52-4FA3-4894-992B-426A7CCF3CE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D345CF52-4FA3-4894-992B-426A7CCF3CE1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F77A87D4-E8E1-4817-AAE6-349B654DDD41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F77A87D4-E8E1-4817-AAE6-349B654DDD41}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F77A87D4-E8E1-4817-AAE6-349B654DDD41}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F77A87D4-E8E1-4817-AAE6-349B654DDD41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

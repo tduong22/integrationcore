@@ -34,6 +34,7 @@ namespace Integration.Common.Actor.BaseActor
 
         protected const string NOT_VALID_PARSING = "NOT_VALID_FOR_PARSING";
         protected const string REMINDER_NAME = "ReminderName";
+        protected bool Resendable;
 
         protected IFaultHandlingService _faultHandlingService;
 
@@ -228,13 +229,17 @@ namespace Integration.Common.Actor.BaseActor
                         await ActorRequestPersistence.RetrieveRequestPayloadAsync<object>(actionName, currentRequestContextId,
                             cancellationToken);
 
+                    //for non-generic cases
+                    var typeOfPayload = await ActorRequestPersistence.RetrieveRequestPayloadTypeAsync(actionName, currentRequestContextId,
+                           cancellationToken);
+
                     //{current actor} only resolved fully from here, when current request context is available
                     var serviceName = this.ActorService.Context.ServiceName;
 
                     var actorExecutionContext = new ActorExecutionContext()
                     {
                         ServiceUri = serviceName.ToString(),
-                        Payload = null,
+                        Payload = Resendable? BinaryStringPayload(payload, typeOfPayload) : null,
                         MethodName = "NOT_YET_PARSED",
                         ActionName = NameCompositionResolver.ExtractActionNameFromReminderName(REMINDER_NAME),
                         ActorName = CurrentActor,
@@ -242,7 +247,7 @@ namespace Integration.Common.Actor.BaseActor
                         OperationId = CurrentFlowInstanceId.Id,
                         FlowName = CurrentFlowInstanceId.FlowName,
                         ApplicationName = ApplicationName,
-                        Resendable = false,
+                        Resendable = Resendable,
                         SourceSystem = CurrentFlowInstanceId.SourceSystem,
                         Entity = CurrentFlowInstanceId.Entity,
                         EntityId = CurrentFlowInstanceId.EntityId,
@@ -251,10 +256,6 @@ namespace Integration.Common.Actor.BaseActor
                     var dict = LoggingUtilities.CreateLoggingDictionary(actorExecutionContext);
 
                     LoggingUtilities.LogPayload(Logger, payload, actionName, dict, null, reminderName);
-
-                    //for non-generic cases
-                    var typeOfPayload = await ActorRequestPersistence.RetrieveRequestPayloadTypeAsync(actionName, currentRequestContextId,
-                           cancellationToken);
 
                     //TODO: current implementation supports generic/non-generic payload, consider using byte[] for all purpose
                     if (typeOfPayload != null)
@@ -363,6 +364,13 @@ namespace Integration.Common.Actor.BaseActor
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return Task.CompletedTask;
+        }
+
+        protected virtual string BinaryStringPayload(object payload, Type typeOfPayload)
+        {
+            return (payload is byte[] binaryPayload) ? 
+                Convert.ToBase64String(binaryPayload) :
+                Convert.ToBase64String(typeOfPayload == null ? SerializePayload(payload) : SerializePayload(payload, typeOfPayload));
         }
 
         #endregion

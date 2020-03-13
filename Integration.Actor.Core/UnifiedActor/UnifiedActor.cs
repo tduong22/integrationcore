@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using ServiceFabric.Integration.Actor.Core.Helpers;
+using ServiceFabric.Integration.Actor.Core.UnifiedActor.Interfaces;
 using System;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
@@ -132,7 +133,6 @@ namespace Integration.Common.Actor.UnifiedActor
                 Logger.LogError(ex, $"{CurrentActor} failed to resolve IAction with actionName {actionName} on InternalProcessAsync. Message: {ex.Message}");
                 throw;
             }
-
             await Action.InternalProcessAsync(actionName, payload, cancellationToken);
             return MessageObjectResult.None;
         }
@@ -214,13 +214,9 @@ namespace Integration.Common.Actor.UnifiedActor
             {
                 if (string.IsNullOrEmpty(actorRequestContext?.ActionName))
                     throw new InvalidOperationException($"UnifiedActors only work with a not-null actionName that used to resolve the correct IAction. Current is {actorRequestContext?.ActionName}");
-                /*
-                 *Add when flow is implemented
-                var flow = await ResolveFlowAsync(null);
-                if (flow != null)
-                    await ResolveStepAsync(actorRequestContext.ActionName);*/
 
                 Action = lifetimeScope.ResolveKeyed<IAction>(actorRequestContext.ActionName);
+                Resendable = (Action is IResendableAction);
                 await Action.ChainProcessMessageAsync(actorRequestContext, payload, cancellationToken);
             }
             catch (Exception ex)

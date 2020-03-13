@@ -2,14 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>2.1.4</Version>
+    <Version>2.1.6</Version>
     <Authors>Logixtek Engineering Team</Authors>
     <Company>Logixtek</Company>
     <Product>Logixtek Integration Framework</Product>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <LangVersion>7.2</LangVersion>
-    <PackageReleaseNotes>2.1.4: Fix an issue on the datacontract serialization for SerializationMethodInfo</PackageReleaseNotes>
+    <PackageReleaseNotes>2.1.4: Fix an issue on the datacontract serialization for SerializationMethodInfo
+2.1.5: Add Fault handling injection to customize failure handling
+2.1.6: Add an IResendableAction interface as a way for storing binary data payload as string used to resend</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
